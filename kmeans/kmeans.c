@@ -113,7 +113,6 @@ void scalarProduct(DATATYPE *src, DATATYPE *dst, DATATYPE scalar, int size) {
     dst[0] = 100;
     for (i = 0; i < size; i++) {
         dst[i] = scalar * src[i];
-        /*printf("src[%d] = %f, dst[%d] = %f, scalar = %f\n", i, src[i], i, dst[i], scalar);*/
     }
 }
 
@@ -147,12 +146,10 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n){
     clusterSum = allocateMatrix(k, n);
     clusterSize = (int *)malloc(sizeof(int) * k);
     clustersMapping = (int *)malloc(sizeof(int) * m);
-    printf("finished alocation memory\n");
 
     memcpy(&centroids[0][0], &datapoints[0][0], sizeof(DATATYPE) * k * n);
 
     while (iteration <= maxIter) {
-        printf("starting iteration #%d\n", iteration);
         iteration++;
         memcpy(&prevCentroids[0][0], &centroids[0][0], sizeof(DATATYPE) * k * n);
         memset(clusterSize, 0, sizeof(int) * k);
@@ -186,7 +183,6 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n){
             free(clusterSum);
             free(clusterSize);
             free(clustersMapping);
-            printf("Converges on iteration: %d\n", iteration);
             return centroids;
         }
     }
@@ -259,11 +255,8 @@ int main(int argc, char *argv[]) {
     }
     fclose(fp);
 
-    printf("outputPath=%s\n", outputPath);
 
-    printf("first 9 datapoints:\n%f, %f, %f\n%f, %f, %f\n%f, %f, %f\n", datapoints[0][0], datapoints[0][1], datapoints[0][2], datapoints[1][0], datapoints[1][1], datapoints[1][2], datapoints[2][0], datapoints[2][1], datapoints[2][2]);
     centroids = kmeans(datapoints, k, maxIter,rows, columns);
-    printf("first 9 centroids:\n%f, %f, %f\n%f, %f, %f\n%f, %f, %f\n", centroids[0][0], centroids[0][1], centroids[0][2], centroids[1][0], centroids[1][1], centroids[1][2], centroids[2][0], centroids[2][1], centroids[2][2]);
     saveCSV(centroids, outputPath, k, columns);
     free(datapoints);
     free(centroids);
