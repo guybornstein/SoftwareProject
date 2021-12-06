@@ -197,6 +197,26 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n){
     return centroids;
 }
 
+/* writes the centroids into the file in output_path,
+k is the number of centroids and n is the vector size. */
+void saveCSV(DATATYPE** centroids, char *output_path, int k, int n) {
+    int i, j;
+    FILE *fp;
+
+    fp = fopen(output_path, "w");
+    if (fp == NULL) {
+        exceptionHandler();
+    }
+    for (i = 0; i < k; i++) {
+        for (j = 0; j < n - 1; j++) {
+            fprintf(fp, "%.4f,", centroids[i][j]);
+        }
+        fprintf(fp, "%.4f\n", centroids[i][n - 1]);
+    }
+
+    fclose(fp);
+}
+
 
 int main(int argc, char *argv[]) {
     int k, i, j, rows, columns;
@@ -244,7 +264,7 @@ int main(int argc, char *argv[]) {
     printf("first 9 datapoints:\n%f, %f, %f\n%f, %f, %f\n%f, %f, %f\n", datapoints[0][0], datapoints[0][1], datapoints[0][2], datapoints[1][0], datapoints[1][1], datapoints[1][2], datapoints[2][0], datapoints[2][1], datapoints[2][2]);
     centroids = kmeans(datapoints, k, maxIter,rows, columns);
     printf("first 9 centroids:\n%f, %f, %f\n%f, %f, %f\n%f, %f, %f\n", centroids[0][0], centroids[0][1], centroids[0][2], centroids[1][0], centroids[1][1], centroids[1][2], centroids[2][0], centroids[2][1], centroids[2][2]);
-    
+    saveCSV(centroids, outputPath, k, columns);
     free(datapoints);
     free(centroids);
     return 0;
