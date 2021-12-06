@@ -14,7 +14,7 @@ def exception_handler():
     sys.exit(1)
 
 
-def load_csv(input_path: str) -> list[tuple[float]]:
+def load_csv(input_path: str):
     datapoints = []
     with open(input_path) as file:
         for line in file:
@@ -23,13 +23,13 @@ def load_csv(input_path: str) -> list[tuple[float]]:
     return datapoints
 
 
-def save_csv(centroids: list[tuple[float]], output_path: str):
+def save_csv(centroids, output_path: str):
     with open(output_path, "w") as file:
         for tup in centroids:
             file.write(','.join([f'{x:.4f}' for x in tup]) + '\n')
 
 
-def distance(point1: tuple[float], point2: tuple[float]) -> float:
+def distance(point1, point2) -> float:
     s = 0
     for i in range(len(point1)):
         s += pow((point1[i]-point2[i]),2)
@@ -37,16 +37,16 @@ def distance(point1: tuple[float], point2: tuple[float]) -> float:
     return pow(s, 0.5)
 
 
-def vector_sum(vector1: tuple[float], vector2: tuple[float]) -> tuple[float]:
+def vector_sum(vector1, vector2):
     assert(len(vector1) == len(vector2))
     return tuple([vector1[i] + vector2[i] for i in range(len(vector1))])
 
 
-def scalar_product(vector: tuple[float], a: float) -> tuple[float]:
+def scalar_product(vector, a: float):
     return tuple([vector[i] *a for i in range(len(vector))])
 
 
-def kmeans(datapoints: list[tuple[float]], k: int, max_iter: int, epsilon: float = 0.001) -> list[tuple[float]]:
+def kmeans(datapoints, k, max_iter, epsilon: float = 0.001):
     centroids = datapoints[:k]
     dim = len(datapoints[0])
     iteration = 0
@@ -101,7 +101,7 @@ def main():
     
     # load, calculate, and save kmeans
     datapoints = load_csv(input_path)
-    centroids = kmeans(datapoints=datapoints, k=k, max_iter=max_iter)
+    centroids = kmeans(datapoints, k, max_iter)
     save_csv(centroids, output_path)
 
 
