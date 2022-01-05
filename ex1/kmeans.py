@@ -14,7 +14,7 @@ def exception_handler():
     sys.exit(1)
 
 
-def load_csv(input_path: str):
+def load_csv(input_path):
     datapoints = []
     with open(input_path) as file:
         for line in file:
@@ -23,17 +23,16 @@ def load_csv(input_path: str):
     return datapoints
 
 
-def save_csv(centroids, output_path: str):
+def save_csv(centroids, output_path):
     with open(output_path, "w") as file:
         for tup in centroids:
-            file.write(','.join([f'{x:.4f}' for x in tup]) + '\n')
+            file.write(','.join(['{:.4f}'.format(x) for x in tup]) + '\n')
 
 
-def distance(point1, point2) -> float:
+def distance(point1, point2):
     s = 0
     for i in range(len(point1)):
-        s += pow((point1[i]-point2[i]),2)
-
+        s += pow(point1[i] - point2[i], 2)
     return pow(s, 0.5)
 
 
@@ -42,16 +41,16 @@ def vector_sum(vector1, vector2):
     return tuple([vector1[i] + vector2[i] for i in range(len(vector1))])
 
 
-def scalar_product(vector, a: float):
+def scalar_product(vector, a):
     return tuple([vector[i] *a for i in range(len(vector))])
 
 
-def kmeans(datapoints, k, max_iter, epsilon: float = 0.001):
+def kmeans(datapoints, k, max_iter, epsilon=0.001):
     centroids = datapoints[:k]
     dim = len(datapoints[0])
     iteration = 0
     
-    while iteration <= max_iter:
+    while iteration < max_iter:
         iteration += 1
 
         clusters_mapping = []
@@ -98,10 +97,17 @@ def main():
 
     k = int(k)
     max_iter = int(max_iter)
+
+    if (k <= 1 or max_iter <= 0):
+        invalid_input()
     
     # load, calculate, and save kmeans
     datapoints = load_csv(input_path)
-    centroids = kmeans(datapoints, k, max_iter)
+
+    if (k >= len(datapoints)):
+        invalid_input()
+
+    centroids = kmeans(datapoints=datapoints, k=k, max_iter=max_iter)
     save_csv(centroids, output_path)
 
 

@@ -48,7 +48,7 @@ int countLines(FILE *fp) {
     int count = 0;
     for (c = fgetc(fp); c != EOF; c = fgetc(fp)) {
         if (c == '\n') {  /* Increment count if this character is newline */
-            count ++;
+            count++;
         }
     }
     fseek(fp, 0, SEEK_SET);
@@ -58,7 +58,7 @@ int countLines(FILE *fp) {
 
 int countColumns(FILE *fp) {
     char c;
-    int count = 1; /* # of commas in line + 1 */
+    int count = 1;  /* # of commas in line + 1 */
     for (c = fgetc(fp); c != '\n'; c = fgetc(fp)) {
         if (c == ',') {
             count++;
@@ -133,7 +133,7 @@ int getClosestCluster(DATATYPE *vector, DATATYPE **centroids, int k, int n) {
 }
 
 
-DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n){
+DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n) {
     DATATYPE **centroids;
     DATATYPE **prevCentroids;
     DATATYPE **clusterSum;
@@ -146,10 +146,13 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n){
     clusterSum = allocateMatrix(k, n);
     clusterSize = (int *)malloc(sizeof(int) * k);
     clustersMapping = (int *)malloc(sizeof(int) * m);
+    if (clusterSize == NULL || clustersMapping == NULL) {
+        exceptionHandler();
+    }
 
     memcpy(&centroids[0][0], &datapoints[0][0], sizeof(DATATYPE) * k * n);
 
-    while (iteration <= maxIter) {
+    while (iteration < maxIter) {
         iteration++;
         memcpy(&prevCentroids[0][0], &centroids[0][0], sizeof(DATATYPE) * k * n);
         memset(clusterSize, 0, sizeof(int) * k);
@@ -179,11 +182,7 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n){
             }
         }
         if (converges) {
-            free(prevCentroids);
-            free(clusterSum);
-            free(clusterSize);
-            free(clustersMapping);
-            return centroids;
+            break;
         }
     }
     free(prevCentroids);
@@ -237,6 +236,11 @@ int main(int argc, char *argv[]) {
         invalidInput();
     }
 
+    /* validate the input */
+    if (k <= 1 || maxIter <= 0) {
+        invalidInput();
+    }
+
     /* loading the CSV to a 2D matrix */
     fp = fopen(inputPath, "r");
     if (fp == NULL) {
@@ -255,6 +259,9 @@ int main(int argc, char *argv[]) {
     }
     fclose(fp);
 
+    if (k >= rows) {
+        invalidInput();
+    }
 
     centroids = kmeans(datapoints, k, maxIter,rows, columns);
     saveCSV(centroids, outputPath, k, columns);
