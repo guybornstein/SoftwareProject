@@ -4,6 +4,7 @@ import sys
 
 
 DEFAULT_MAX_ITER = 200
+DATAFILE = "rami patsuts"
 
 
 def invalid_input():
@@ -22,19 +23,26 @@ def kmeans_pp(datapoints, k):
         invalid_input()
     
     np.random.seed(0)
-    probs = np.ones(n) / n
-    starting_centroids = np.empty((k, m))
+    starting_centroids = []
     dists = np.empty(n)
 
-    starting_centroids[0] = datapoints[np.random.choice(n, 1, p=probs)]
+    starting_centroids.append(np.random.choice(n, 1)[0])
     for i in range(1, k):
         for l in range(n):
-            dists[l] = min([np.vdot(datapoints[l] - starting_centroids[j], datapoints[l] - starting_centroids[j]) for j in range(i)])
+            dists[l] = min([np.vdot(datapoints[l] - datapoints[starting_centroids[j]], datapoints[l] - datapoints[starting_centroids[j]]) for j in range(i)])
         probs = dists / np.sum(dists)
-        starting_centroids[i] = datapoints[np.random.choice(n, 1, p=probs)]
+        starting_centroids.append(np.random.choice(n, 1, p=probs)[0])
 
 
     return starting_centroids
+
+
+def write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon):
+    with open(DATAFILE, "w") as f:
+        f.write(f"{k},{max_iter},{epsilon}\n")
+        f.write(','.join([str(num) for num in starting_centriods]) + '\n')
+        for i in range(len(datapoints)):
+            f.write(','.join([str(arr) for arr in datapoints[i]]) + '\n')
 
 
 def main():
@@ -65,7 +73,8 @@ def main():
     df1 = pd.read_csv(input_path1, header=None)
     df2 = pd.read_csv(input_path1, header=None)
     datapoints = pd.merge(df1, df2, on=0, how='inner')[1:].to_numpy()
-    kmeans_pp(datapoints, k)
+    starting_centriods = kmeans_pp(datapoints, k)
+    write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon)
 
 
 
