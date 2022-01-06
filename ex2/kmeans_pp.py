@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
 import sys
+import os
+import mykmeanssp
 
 
 DEFAULT_MAX_ITER = 200
-DATAFILE = "rami patsuts"
+DATAFILE = "rami_patsuts.txt"
 
 
 def invalid_input():
@@ -18,28 +20,28 @@ def exception_handler():
 
 
 def kmeans_pp(datapoints, k):
-    n, m = datapoints.shape
-    if k >= n:
+    m, n = datapoints.shape
+    if k >= m:
         invalid_input()
     
     np.random.seed(0)
     starting_centroids = []
-    dists = np.empty(n)
+    dists = np.empty(m)
 
-    starting_centroids.append(np.random.choice(n, 1)[0])
+    starting_centroids.append(np.random.choice(m, 1)[0])
     for i in range(1, k):
-        for l in range(n):
+        for l in range(m):
             dists[l] = min([np.vdot(datapoints[l] - datapoints[starting_centroids[j]], datapoints[l] - datapoints[starting_centroids[j]]) for j in range(i)])
         probs = dists / np.sum(dists)
-        starting_centroids.append(np.random.choice(n, 1, p=probs)[0])
-
+        starting_centroids.append(np.random.choice(m, 1, p=probs)[0])
 
     return starting_centroids
 
 
 def write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon):
+    m, n = datapoints.shape
     with open(DATAFILE, "w") as f:
-        f.write(f"{k},{max_iter},{epsilon}\n")
+        f.write(f"{m},{n},{k},{max_iter},{epsilon}\n")
         f.write(','.join([str(num) for num in starting_centriods]) + '\n')
         for i in range(len(datapoints)):
             f.write(','.join([str(arr) for arr in datapoints[i]]) + '\n')
@@ -71,11 +73,20 @@ def main():
         invalid_input()
     
     df1 = pd.read_csv(input_path1, header=None)
-    df2 = pd.read_csv(input_path1, header=None)
-    datapoints = pd.merge(df1, df2, on=0, how='inner')[1:].to_numpy()
+    df2 = pd.read_csv(input_path2, header=None)
+    datapoints = pd.merge(df1, df2, on=0, how='inner').iloc[:, 1:].to_numpy()
+    print(datapoints)
     starting_centriods = kmeans_pp(datapoints, k)
-    write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon)
 
+    write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon)
+    input()
+    mykmeanssp.fit(DATAFILE)
+    input()
+    centroids = pd.read_csv(DATAFILE, header = None).to_numpy()
+    print(','.join([str(i) for i in starting_centriods]))
+    for centroid in centroids:
+        print(','.join([f'{val:.4f}' for val in centroid]))
+    os.remove(DATAFILE)
 
 
 if __name__ == "__main__":
