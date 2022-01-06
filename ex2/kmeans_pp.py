@@ -59,7 +59,7 @@ def main():
     k = int(k)
     max_iter = int(max_iter)
 
-    if (k <= 1 or max_iter <= 0):
+    if (k <= 1 or max_iter <= 0 or epsilon < 0):
         invalid_input()
     
     df1 = pd.read_csv(input_path1, header=None)
