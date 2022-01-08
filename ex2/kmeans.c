@@ -2,42 +2,20 @@
 #include <Python.h>
 
 
-#define DEFAULT_MAX_ITER 200
 #define DATATYPE double
-#define EPSILON 0.001
 
 
 DATATYPE **allocateMatrix(int m, int n);
-void invalidInput();
 void exceptionHandler();
-int secureStrtol(char *str);
-int countLines(FILE *fp);
-int countCoulmns(FILE *fp);
 void vectorSum(DATATYPE *src1, DATATYPE *src2, DATATYPE *dst, int size);
 void scalarProduct(DATATYPE *src, DATATYPE *dst, DATATYPE scalar, int size);
 DATATYPE euclideanDistance(DATATYPE *vector1, DATATYPE *vector2, int size);
 int getClosestCluster(DATATYPE *vector, DATATYPE **centroids, int k, int n);
 
 
-void invalidInput() {
-    printf("Invalid Input!\n");
-    exit(1);
-}
-
-
 void exceptionHandler() {
     printf("An Error Has Occurred\n");
     exit(1);
-}
-
-/* checks if given string is an integer */
-int secureStrtol(char *str) {
-    char *endptr;
-    int result = strtol(str, &endptr, 10);
-    if (*endptr != '\0') {
-        invalidInput();
-    }
-    return result;
 }
 
 
@@ -105,7 +83,7 @@ int getClosestCluster(DATATYPE *vector, DATATYPE **centroids, int k, int n) {
 }
 
 
-DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n, int *observations) {
+DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n, int *observations, double epsilon) {
     DATATYPE **centroids;
     DATATYPE **prevCentroids;
     DATATYPE **clusterSum;
@@ -150,7 +128,7 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n, int *
 
         converges = 1;
         for (cluster = 0; cluster < k; cluster++) {
-            if (euclideanDistance(centroids[cluster], prevCentroids[cluster], n) >= EPSILON) {
+            if (euclideanDistance(centroids[cluster], prevCentroids[cluster], n) > epsilon) {
                 converges = 0;
                 break;
             }
@@ -231,7 +209,7 @@ static PyObject* fit(PyObject* self, PyObject* args) {
     }
     fclose(fp);
 
-    centroids = kmeans(datapoints, k, maxIter,rows, columns, observations);
+    centroids = kmeans(datapoints, k, maxIter,rows, columns, observations, epsilon);
     saveCSV(centroids, filename, k, columns);
 
     free(datapoints);

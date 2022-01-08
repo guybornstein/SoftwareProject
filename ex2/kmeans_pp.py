@@ -5,7 +5,7 @@ import os
 import mykmeanssp
 
 
-DEFAULT_MAX_ITER = 200
+DEFAULT_MAX_ITER = 300
 DATAFILE = "rami_patsuts.txt"
 
 
@@ -21,6 +21,8 @@ def exception_handler():
 
 def kmeans_pp(datapoints, k):
     m, n = datapoints.shape
+    if k>=n:
+        invalid_input()
     np.random.seed(0)
     observations = [np.random.choice(m, 1)[0]]
     for _ in range(1, k):
@@ -55,7 +57,7 @@ def main():
 
     try:
        epsilon = float(epsilon)
-    except ValueError:
+    except Exception:
         invalid_input()
 
     
