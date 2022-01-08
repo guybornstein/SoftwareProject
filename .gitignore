@@ -1,6 +1,5 @@
-env
+venv
 ex2/build
 *.pyd
 *.exe
 test.txt
-.vscode
