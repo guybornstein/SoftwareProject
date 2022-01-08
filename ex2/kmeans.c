@@ -105,7 +105,7 @@ int getClosestCluster(DATATYPE *vector, DATATYPE **centroids, int k, int n) {
 }
 
 
-DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n, int *starting_centriods) {
+DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n, int *observations) {
     DATATYPE **centroids;
     DATATYPE **prevCentroids;
     DATATYPE **clusterSum;
@@ -123,7 +123,7 @@ DATATYPE **kmeans(DATATYPE **datapoints, int k, int maxIter, int m, int n, int *
     }
 
     for (i = 0; i < k; i++) {
-        memcpy(&centroids[i][0], &datapoints[starting_centriods[i]][0], sizeof(DATATYPE) * n);
+        memcpy(&centroids[i][0], &datapoints[observations[i]][0], sizeof(DATATYPE) * n);
     }
 
     while (iteration < maxIter) {
@@ -195,7 +195,7 @@ static PyObject* fit(PyObject* self, PyObject* args) {
     int maxIter;
     double epsilon;
     DATATYPE **datapoints, **centroids;
-    int* starting_centroids;
+    int* observations;
     FILE *fp;
 
     /* loading the CSV to a 2D matrix */
@@ -215,10 +215,10 @@ static PyObject* fit(PyObject* self, PyObject* args) {
     fscanf(fp, "%lf", &epsilon);
     fgetc(fp);
 
-    starting_centroids = (int*)malloc(k * sizeof(int));
+    observations = (int*)malloc(k * sizeof(int));
     
     for (i = 0; i < k; i++) {
-        fscanf(fp, "%i", &starting_centroids[i]);
+        fscanf(fp, "%i", &observations[i]);
         fgetc(fp);  /* skip 1 char (comma or newline) */
     }
 
@@ -231,14 +231,14 @@ static PyObject* fit(PyObject* self, PyObject* args) {
     }
     fclose(fp);
 
-    centroids = kmeans(datapoints, k, maxIter,rows, columns, starting_centroids);
+    centroids = kmeans(datapoints, k, maxIter,rows, columns, observations);
     saveCSV(centroids, filename, k, columns);
 
     free(datapoints);
     free(centroids);
-    free(starting_centroids);
+    free(observations);
     
-    return Py_BuildValue("i", 5);
+    Py_RETURN_NONE;
 }
 
 
