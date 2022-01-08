@@ -21,21 +21,14 @@ def exception_handler():
 
 def kmeans_pp(datapoints, k):
     m, n = datapoints.shape
-    if k >= m:
-        invalid_input()
-    
     np.random.seed(0)
-    starting_centroids = []
-    dists = np.empty(m)
-
-    starting_centroids.append(np.random.choice(m, 1)[0])
-    for i in range(1, k):
-        for l in range(m):
-            dists[l] = min([np.vdot(datapoints[l] - datapoints[starting_centroids[j]], datapoints[l] - datapoints[starting_centroids[j]]) for j in range(i)])
+    observations = [np.random.choice(m, 1)[0]]
+    for _ in range(1, k):
+        diffs = datapoints.reshape(m, 1, n) - datapoints[observations].reshape(1, -1, n)
+        dists = np.min(np.sum(diffs ** 2, axis=2), axis=1)
         probs = dists / np.sum(dists)
-        starting_centroids.append(np.random.choice(m, 1, p=probs)[0])
-
-    return starting_centroids
+        observations.append(np.random.choice(m, 1, p=probs)[0])
+    return observations
 
 
 def write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon):
@@ -71,19 +64,19 @@ def main():
 
     if (k <= 1 or max_iter <= 0 or epsilon < 0):
         invalid_input()
-    
+  
     df1 = pd.read_csv(input_path1, header=None)
     df2 = pd.read_csv(input_path2, header=None)
-    datapoints = pd.merge(df1, df2, on=0, how='inner').iloc[:, 1:].to_numpy()
-    print(datapoints)
-    starting_centriods = kmeans_pp(datapoints, k)
+    merged = pd.merge(df1, df2, on=0, how='inner')
+    merged.sort_values(0, inplace=True)
+    
+    datapoints = merged.iloc[:, 1:].to_numpy()
+    observations = kmeans_pp(datapoints, k)
 
-    write_data_to_file(datapoints, starting_centriods, k, max_iter, epsilon)
-    input()
+    write_data_to_file(datapoints, observations, k, max_iter, epsilon)
     mykmeanssp.fit(DATAFILE)
-    input()
     centroids = pd.read_csv(DATAFILE, header = None).to_numpy()
-    print(','.join([str(i) for i in starting_centriods]))
+    print(','.join([str(i) for i in observations]))
     for centroid in centroids:
         print(','.join([f'{val:.4f}' for val in centroid]))
     os.remove(DATAFILE)
