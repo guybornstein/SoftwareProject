@@ -21,7 +21,7 @@ def exception_handler():
 
 def kmeans_pp(datapoints, k):
     m, n = datapoints.shape
-    if k>=n:
+    if k >= m:
         invalid_input()
     np.random.seed(0)
     observations = [np.random.choice(m, 1)[0]]
@@ -67,8 +67,12 @@ def main():
     if (k <= 1 or max_iter <= 0 or epsilon < 0):
         invalid_input()
   
-    df1 = pd.read_csv(input_path1, header=None)
-    df2 = pd.read_csv(input_path2, header=None)
+    try:
+        df1 = pd.read_csv(input_path1, header=None)
+        df2 = pd.read_csv(input_path2, header=None)
+    except IOError:
+        invalid_input()
+    
     merged = pd.merge(df1, df2, on=0, how='inner')
     merged.sort_values(0, inplace=True)
     
